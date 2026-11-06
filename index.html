@@ -19,7 +19,7 @@ h1{font-size:24px;margin:0 0 6px}h2{font-size:20px;margin:0 0 16px}.muted{color:
 .headerline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px}.stat strong{font-size:25px;display:block;color:var(--green)}.stat span{font-size:12px;color:var(--muted)}
 .tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);white-space:nowrap}th{background:#f6f9f7;color:#43534b}
 .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.actions{display:flex;gap:8px;flex-wrap:wrap}.badge{display:inline-block;border-radius:20px;padding:4px 9px;background:var(--mint);color:var(--green);font-size:11px;font-weight:700}
-#bridgeFrame{display:none}
+
 @media(max-width:720px){.layout{grid-template-columns:1fr}.sidebar{padding:12px}.nav{display:grid;grid-template-columns:repeat(2,1fr);margin-top:8px}.cards{grid-template-columns:1fr 1fr}.wrap{margin:18px auto}.formgrid{grid-template-columns:1fr}.headerline{align-items:flex-start;flex-direction:column}.topbar{padding:13px 15px}}
 @media(max-width:420px){.cards{grid-template-columns:1fr}.login-card{padding:22px;margin:5vh 12px}}
 </style>
@@ -96,7 +96,6 @@ h1{font-size:24px;margin:0 0 6px}h2{font-size:20px;margin:0 0 16px}.muted{color:
   </div>
 </main>
 
-<iframe name="bridgeFrame" id="bridgeFrame"></iframe>
 <script>
 /*
  * Set this to your deployed Apps Script Web App URL ending in /exec.
@@ -108,30 +107,34 @@ let currentUser = null;
 let allMembers = [];
 let editingMemberId = '';
 
-function api(action, data={}) {
-  return new Promise((resolve,reject)=>{
-    if (!API_URL.startsWith('https://script.google.com/macros/s/')) {
-      reject(new Error('Please add your Apps Script Web App URL in index.html first.'));
-      return;
-    }
-    const requestId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
-    const frame = document.getElementById('bridgeFrame');
-    const form = document.createElement('form');
-    form.method='POST'; form.action=API_URL; form.target='bridgeFrame'; form.style.display='none';
-    const input=document.createElement('input'); input.name='payload'; input.value=JSON.stringify({action,requestId,token:sessionToken,...data});
-    form.appendChild(input); document.body.appendChild(form);
-    const timer=setTimeout(()=>{cleanup();reject(new Error('The server did not respond. Check your Apps Script deployment and internet connection.'));},60000);
-    function cleanup(){clearTimeout(timer);window.removeEventListener('message',listener);form.remove();}
-    function listener(event){
-      if(!event.data || event.data.channel!=='dms-api' || event.data.requestId!==requestId)return;
-      cleanup();
-      const result=event.data.result;
-      if(!result || result.ok===false) reject(new Error(result && result.error ? result.error : 'Request failed.'));
-      else resolve(result);
-    }
-    window.addEventListener('message',listener);
-    form.submit();
-  });
+async function api(action, data={}) {
+  if (!API_URL.startsWith('https://script.google.com/macros/s/')) {
+    throw new Error('Please add your Apps Script Web App URL in index.html first.');
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 60000);
+  let res;
+  try {
+    // text/plain keeps this a "simple" request (no CORS preflight), which Apps Script requires.
+    res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, token: sessionToken, ...data }),
+      redirect: 'follow',
+      signal: controller.signal
+    });
+  } catch (err) {
+    clearTimeout(timer);
+    throw new Error('The server did not respond. Check your Apps Script deployment (Execute as: Me, Access: Anyone, New version) and internet connection.');
+  }
+  clearTimeout(timer);
+  let result;
+  try { result = await res.json(); }
+  catch (err) {
+    throw new Error('The server returned an unexpected reply. Re-deploy the Apps Script as a New version with access set to Anyone.');
+  }
+  if (!result || result.ok === false) throw new Error(result && result.error ? result.error : 'Request failed.');
+  return result;
 }
 
 document.getElementById('loginForm').addEventListener('submit',async e=>{
