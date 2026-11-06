@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173d35">
+<title>Dippitiya Mithuru Sansadaya | දිප්පිටිය මිතුරු සංසදය</title>
+<style>
+:root{--green:#173d35;--green2:#24594d;--mint:#eaf2ee;--ink:#1c2925;--muted:#687771;--line:#e2e9e5;--bg:#f5f8f6;--white:#fff;--red:#a33333}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans Sinhala",Arial,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.topbar{background:var(--green);color:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-weight:750;font-size:17px}.brand small{display:block;font-size:12px;font-weight:400;opacity:.8;margin-top:3px}
+.wrap{max-width:1100px;margin:28px auto;padding:0 16px}.login-card{max-width:430px;margin:7vh auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 12px 35px #173d3510}
+h1{font-size:24px;margin:0 0 6px}h2{font-size:20px;margin:0 0 16px}.muted{color:var(--muted);font-size:13px}.field{margin:15px 0}.field label{display:block;font-size:13px;font-weight:650;margin-bottom:7px}.field input,.field select,.field textarea{width:100%;border:1px solid #d7e1db;border-radius:10px;padding:12px;background:#fff;color:var(--ink);outline-color:var(--green2)}
+.btn{border:0;border-radius:10px;background:var(--green);color:#fff;padding:11px 16px;font-weight:650}.btn:hover{background:var(--green2)}.btn.secondary{background:#eaf2ee;color:var(--green)}.btn.danger{background:#fff0f0;color:var(--red)}.btn.full{width:100%}
+.error{color:var(--red);font-size:13px;margin-top:10px}.success{color:#267347;font-size:13px;margin-top:10px}
+.layout{display:grid;grid-template-columns:220px 1fr;gap:20px}.sidebar,.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}.nav{display:flex;flex-direction:column;gap:7px;margin-top:18px}.nav button{text-align:left;border:0;background:transparent;padding:11px;border-radius:9px;color:var(--ink)}.nav button.active,.nav button:hover{background:var(--mint);color:var(--green);font-weight:650}
+.headerline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:17px}.stat strong{font-size:25px;display:block;color:var(--green)}.stat span{font-size:12px;color:var(--muted)}
+.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);white-space:nowrap}th{background:#f6f9f7;color:#43534b}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.actions{display:flex;gap:8px;flex-wrap:wrap}.badge{display:inline-block;border-radius:20px;padding:4px 9px;background:var(--mint);color:var(--green);font-size:11px;font-weight:700}
+#bridgeFrame{display:none}
+@media(max-width:720px){.layout{grid-template-columns:1fr}.sidebar{padding:12px}.nav{display:grid;grid-template-columns:repeat(2,1fr);margin-top:8px}.cards{grid-template-columns:1fr 1fr}.wrap{margin:18px auto}.formgrid{grid-template-columns:1fr}.headerline{align-items:flex-start;flex-direction:column}.topbar{padding:13px 15px}}
+@media(max-width:420px){.cards{grid-template-columns:1fr}.login-card{padding:22px;margin:5vh 12px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">දිප්පිටිය මිතුරු සංසදය<small>Dippitiya Mithuru Sansadaya</small></div>
+  <div id="topUser" class="muted" style="color:#e3eee8"></div>
+</header>
+
+<main id="loginView" class="login-card">
+  <h1>සාදරයෙන් පිළිගනිමු</h1>
+  <p class="muted">Welcome to Dippitiya Mithuru Sansadaya</p>
+  <form id="loginForm">
+    <div class="field"><label for="username">Member ID / සාමාජික අංකය</label><input id="username" autocomplete="username" required></div>
+    <div class="field"><label for="password">Password / මුරපදය</label><input id="password" type="password" autocomplete="current-password" required></div>
+    <button class="btn full" type="submit">Login / පිවිසෙන්න</button>
+    <div id="loginMessage" role="status"></div>
+  </form>
+</main>
+
+<main id="appView" class="wrap hidden">
+  <div class="layout">
+    <aside class="sidebar">
+      <strong id="welcomeName">Welcome</strong>
+      <div class="muted" id="roleLabel"></div>
+      <nav class="nav" id="navigation"></nav>
+      <button class="btn danger full" style="margin-top:18px" id="logoutBtn">Logout / ඉවත් වන්න</button>
+    </aside>
+    <section>
+      <div id="dashboardPage" class="panel page">
+        <div class="headerline"><div><h2>Dashboard / ප්‍රධාන පුවරුව</h2><div class="muted">Dippitiya Mithuru Sansadaya</div></div><span class="badge">Online</span></div>
+        <div id="stats" class="cards"></div>
+        <div id="dashboardMessage" class="muted"></div>
+      </div>
+
+      <div id="membersPage" class="panel page hidden">
+        <div class="headerline"><div><h2>Members / සාමාජිකයන්</h2><div class="muted">Member directory and records</div></div><button class="btn" id="addMemberBtn">+ Add Member / සාමාජිකයෙකු එක් කරන්න</button></div>
+        <div class="field"><input id="memberSearch" placeholder="Search by ID or name / සොයන්න"></div>
+        <div class="tablewrap"><table><thead><tr><th>Member ID</th><th>Name / නම</th><th>Contact / දුරකථන</th><th>Status / තත්ත්වය</th><th></th></tr></thead><tbody id="memberRows"></tbody></table></div>
+      </div>
+
+      <div id="profilePage" class="panel page hidden">
+        <h2>My Details / මගේ තොරතුරු</h2>
+        <div id="profileDetails" class="muted">Loading member information...</div>
+      </div>
+
+      <div id="memberFormPage" class="panel page hidden">
+        <div class="headerline"><h2 id="memberFormTitle">Add Member / සාමාජිකයෙකු එක් කරන්න</h2><button class="btn secondary" id="cancelMemberBtn">Back / ආපසු</button></div>
+        <form id="memberForm">
+          <div class="formgrid">
+            <div class="field"><label>Member ID / සාමාජික අංකය *</label><input name="Member_ID" required></div>
+            <div class="field"><label>Full Name / සම්පූර්ණ නම *</label><input name="Full_Name" required></div>
+            <div class="field"><label>Sinhala Name / සිංහල නම</label><input name="Sinhala_Name"></div>
+            <div class="field"><label>Date of Birth / උපන් දිනය</label><input name="Date_of_Birth" type="date"></div>
+            <div class="field"><label>Gender / ස්ත්‍රී පුරුෂ භාවය</label><select name="Gender"><option value="">Select / තෝරන්න</option><option>Male / පිරිමි</option><option>Female / ගැහැණු</option><option>Other / වෙනත්</option></select></div>
+            <div class="field"><label>Contact Number / දුරකථන අංකය</label><input name="Contact_Number" type="tel"></div>
+            <div class="field"><label>Email / විද්‍යුත් තැපෑල</label><input name="Email" type="email"></div>
+            <div class="field"><label>Join Date / සාමාජිකත්ව දිනය</label><input name="Join_Date" type="date"></div>
+            <div class="field"><label>Member Status / සාමාජිකත්ව තත්ත්වය</label><select name="Member_Status"><option>ACTIVE</option><option>INACTIVE</option></select></div>
+            <div class="field"><label>Photo URL / ඡායාරූප සබැඳිය</label><input name="Photo_URL"></div>
+            <div class="field" style="grid-column:1/-1"><label>Address / ලිපිනය</label><textarea name="Address" rows="2"></textarea></div>
+            <div class="field" id="createLoginWrap" style="grid-column:1/-1">
+              <label><input type="checkbox" name="Create_Login" value="yes" style="width:auto"> Create member login / සාමාජික පිවිසුමක් සාදන්න</label>
+              <label style="margin-top:10px">Initial Password / ආරම්භක මුරපදය</label>
+              <input name="Initial_Password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters">
+              <div class="muted">The member will sign in using their Member ID and this password. Ask them to change it after first login.</div>
+            </div>
+          </div>
+          <button class="btn" type="submit">Save Member / සුරකින්න</button><div id="memberFormMessage"></div>
+        </form>
+      </div>
+    </section>
+  </div>
+</main>
+
+<iframe name="bridgeFrame" id="bridgeFrame"></iframe>
+<script>
+/*
+ * Set this to your deployed Apps Script Web App URL ending in /exec.
+ * Example: https://script.google.com/macros/s/DEPLOYMENT_ID/exec
+ */
+const API_URL = 'https://script.google.com/macros/s/AKfycbz8LkA1xuvHTXC_6J756YzpSi75Ts8GlCJJfLWvyRBkk847Cz8L4fDgcNCXZpHZhQun/exec';
+let sessionToken = sessionStorage.getItem('dms_session') || '';
+let currentUser = null;
+let allMembers = [];
+let editingMemberId = '';
+
+function api(action, data={}) {
+  return new Promise((resolve,reject)=>{
+    if (!API_URL.startsWith('https://script.google.com/macros/s/')) {
+      reject(new Error('Please add your Apps Script Web App URL in index.html first.'));
+      return;
+    }
+    const requestId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+    const frame = document.getElementById('bridgeFrame');
+    const form = document.createElement('form');
+    form.method='POST'; form.action=API_URL; form.target='bridgeFrame'; form.style.display='none';
+    const input=document.createElement('input'); input.name='payload'; input.value=JSON.stringify({action,requestId,token:sessionToken,...data});
+    form.appendChild(input); document.body.appendChild(form);
+    const timer=setTimeout(()=>{cleanup();reject(new Error('The server did not respond. Check your Apps Script deployment and internet connection.'));},25000);
+    function cleanup(){clearTimeout(timer);window.removeEventListener('message',listener);form.remove();}
+    function listener(event){
+      if(event.source!==frame.contentWindow || !event.data || event.data.channel!=='dms-api' || event.data.requestId!==requestId)return;
+      cleanup();
+      const result=event.data.result;
+      if(!result || result.ok===false) reject(new Error(result && result.error ? result.error : 'Request failed.'));
+      else resolve(result);
+    }
+    window.addEventListener('message',listener);
+    form.submit();
+  });
+}
+
+document.getElementById('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const msg=document.getElementById('loginMessage'); msg.className='muted'; msg.textContent='Signing in...';
+  try{
+    const result=await api('login',{username:document.getElementById('username').value,password:document.getElementById('password').value});
+    sessionToken=result.token; sessionStorage.setItem('dms_session',sessionToken); currentUser=result.user;
+    document.getElementById('password').value=''; await showApp();
+  }catch(err){msg.className='error';msg.textContent=err.message;}
+});
+
+async function showApp(){
+  document.getElementById('loginView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+  document.getElementById('topUser').textContent=currentUser.userId;
+  document.getElementById('welcomeName').textContent=currentUser.userId;
+  document.getElementById('roleLabel').textContent=currentUser.role==='ADMIN'?'Administrator / පරිපාලක':'Member / සාමාජික';
+  const nav=document.getElementById('navigation');
+  nav.innerHTML='<button class="active" data-page="dashboardPage">Dashboard / ප්‍රධාන පුවරුව</button>';
+  if(currentUser.role==='ADMIN') nav.innerHTML+='<button data-page="membersPage">Members / සාමාජිකයන්</button>';
+  else nav.innerHTML+='<button data-page="profilePage">My Details / මගේ තොරතුරු</button>';
+  nav.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>openPage(b.dataset.page)));
+  await loadDashboard();
+  if(currentUser.role==='ADMIN') await loadMembers(); else await loadMyProfile();
+}
+
+function openPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+}
+async function loadDashboard(){
+  const stats=document.getElementById('stats');
+  if(currentUser.role==='ADMIN'){
+    try{const r=await api('listMembers');allMembers=r.members||[];
+      stats.innerHTML=stat(''+allMembers.length,'Total Members / මුළු සාමාජිකයන්')+stat(''+allMembers.filter(x=>x.Member_Status==='ACTIVE').length,'Active Members / සක්‍රීය')+stat('ADMIN','User Role / භූමිකාව');
+      document.getElementById('dashboardMessage').textContent='Use Members to view and maintain member records.';
+    }catch(e){stats.textContent=e.message;}
+  }else{
+    stats.innerHTML=stat('MEMBER','User Role / භූමිකාව');
+    document.getElementById('dashboardMessage').textContent='Welcome. You can view only your own member information.';
+  }
+}
+function stat(value,label){return '<div class="stat"><strong>'+escapeHtml(value)+'</strong><span>'+escapeHtml(label)+'</span></div>'}
+async function loadMembers(){
+  const r=await api('listMembers');allMembers=r.members||[];renderMembers(allMembers);
+}
+function renderMembers(list){
+  document.getElementById('memberRows').innerHTML=list.map(m=>'<tr><td>'+escapeHtml(m.Member_ID)+'</td><td>'+escapeHtml(m.Sinhala_Name||m.Full_Name)+'</td><td>'+escapeHtml(m.Contact_Number||'')+'</td><td><span class="badge">'+escapeHtml(m.Member_Status||'')+'</span></td><td><button class="btn secondary" data-edit="'+escapeHtml(m.Member_ID)+'">Edit / සංස්කරණය</button></td></tr>').join('');
+  document.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>editMember(b.dataset.edit)));
+}
+document.getElementById('memberSearch').addEventListener('input',e=>{
+  const q=e.target.value.toLowerCase();
+  renderMembers(allMembers.filter(m=>[m.Member_ID,m.Full_Name,m.Sinhala_Name,m.Contact_Number].join(' ').toLowerCase().includes(q)));
+});
+document.getElementById('addMemberBtn').addEventListener('click',()=>openMemberForm(null));
+document.getElementById('cancelMemberBtn').addEventListener('click',()=>openPage('membersPage'));
+function editMember(id){const m=allMembers.find(x=>String(x.Member_ID)===String(id));openMemberForm(m);}
+function openMemberForm(m){
+  editingMemberId=m?m.Member_ID:'';
+  document.getElementById('memberForm').reset();
+  document.getElementById('memberFormTitle').textContent=m?'Edit Member / සාමාජික තොරතුරු සංස්කරණය':'Add Member / සාමාජිකයෙකු එක් කරන්න';
+  if(m) Object.keys(m).forEach(k=>{const el=document.querySelector('[name="'+k+'"]');if(el && el.type!=='checkbox' && k!=='Initial_Password')el.value=m[k]||'';});
+  document.getElementById('createLoginWrap').classList.toggle('hidden',!!m);
+  document.getElementById('memberFormMessage').textContent='';
+  openPage('memberFormPage');
+}
+document.getElementById('memberForm').addEventListener('submit',async e=>{
+  e.preventDefault();const form=e.currentTarget;const member=Object.fromEntries(new FormData(form).entries());
+  if(editingMemberId)member.Member_ID=editingMemberId;
+  const msg=document.getElementById('memberFormMessage');msg.className='muted';msg.textContent='Saving...';
+  try{const r=await api('saveMember',{member});msg.className='success';msg.textContent=r.message;await loadMembers();await loadDashboard();}
+  catch(err){msg.className='error';msg.textContent=err.message;}
+});
+async function loadMyProfile(){
+  const r=await api('getMyMember');
+  const m=r.member;
+  if(!m){document.getElementById('profileDetails').textContent='No member record is linked to this login. Please contact the administrator.';return;}
+  const labels={Member_ID:'Member ID / සාමාජික අංකය',Full_Name:'Full Name / සම්පූර්ණ නම',Sinhala_Name:'Sinhala Name / සිංහල නම',Date_of_Birth:'Date of Birth / උපන් දිනය',Gender:'Gender / ස්ත්‍රී පුරුෂ භාවය',Address:'Address / ලිපිනය',Contact_Number:'Contact Number / දුරකථන අංකය',Email:'Email / විද්‍යුත් තැපෑල',Join_Date:'Join Date / සාමාජිකත්ව දිනය',Member_Status:'Status / තත්ත්වය'};
+  document.getElementById('profileDetails').innerHTML=Object.keys(labels).map(k=>'<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="muted">'+labels[k]+'</div><strong>'+escapeHtml(m[k]||'—')+'</strong></div>').join('');
+}
+document.getElementById('logoutBtn').addEventListener('click',async()=>{
+  try{await api('logout');}catch(e){}
+  sessionStorage.removeItem('dms_session');sessionToken='';currentUser=null;
+  document.getElementById('appView').classList.add('hidden');document.getElementById('loginView').classList.remove('hidden');document.getElementById('topUser').textContent='';
+});
+function escapeHtml(value){return String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+(async function restoreSession(){
+  if(!sessionToken)return;
+  try{const r=await api('me');currentUser=r.user;await showApp();}
+  catch(e){sessionStorage.removeItem('dms_session');sessionToken='';}
+})();
+</script>
+</body>
+</html>
